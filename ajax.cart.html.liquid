@@ -1,0 +1,103 @@
+<!-- Ajax Cart -->
+<div class="custom-control-message-wrap">
+  <div class="custom-control-message"></div>
+</div>
+<style>
+  .custom-control-message-wrap {
+    position: fixed;
+    bottom: -80px;
+    width: 100%;
+    
+    transition: transform .4s;
+    -webkit-transition: -webkit-transform .4s;
+    -moz-transition: -moz-transform .4s;
+    
+    transform: translateY(0);
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    -ms-transform: translateY(0);
+  }
+  .custom-control-message-wrap.fade-in {
+    transform: translateY(-100px);
+    -webkit-transform: translateY(-100px);
+    -moz-transform: translateY(-100px);
+    -ms-transform: translateY(-100px);
+  }
+  .custom-control-message {
+    
+    background-color: black;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 3px 3px rgb(0 0 0 / 20%);
+    margin: auto;
+    width: fit-content;
+  }
+  .custom-control-message.error {
+    background-color: red;
+  }
+</style>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded",() => {
+
+    const soldoutText = {{'products.product.sold_out' | t | json }};
+    let quantity = {{current_variant.inventory_quantity}};
+    let soldout = false;
+    let $quantityElem = $(".product__inventory");
+    let $form = $("#{{form_id}}");
+    let $formBtn = $form.find("button[type='submit']");
+    let $controlMessageWrap = $(".custom-control-message-wrap");
+  let $messageText = $controlMessageWrap.find(".custom-control-message");
+  
+  const disableFormButton = text => {
+    $formBtn.find("span").text(text)
+    $formBtn.attr("type", "button").addClass("disabled")
+  };
+  
+  const displayMessage = (msg, isError) => {
+    let classes = "fade-in"+ ((isError == true)? " error": "");
+    $controlMessageWrap.removeClass("error");
+    $messageText.text(msg);
+    $controlMessageWrap.addClass(classes);
+    setTimeout(()=>$controlMessageWrap.removeClass(classes), 2000);
+  }
+    
+    const addToCartOk = () => {
+      quantity--;
+      $formBtn.find("span").text({{ button_text | json }});
+      displayMessage("Added to Cart", false);
+      $(".cart-link__bubble").addClass("cart-link__bubble--visible")
+      $quantityElem = $("#ProductInventory-{{ section_id }}");
+      
+     if(quantity == 0) {
+        soldout = true;
+        disableFormButton("Added to Cart")
+        $quantityElem.text("All items are added to cart!");
+      }
+      else {
+        console.log(`Only ${quantity} items in stock!`);
+      }
+    }
+
+    const addToCartFail = err => {
+      let response = JSON.parse(err.responseText);
+      if(response.status == 422)
+        disableFormButton("Already Added");
+      displayMessage(response.description, true);
+    }
+  
+    $form.submit(e => {
+      e.preventDefault();
+      $formBtn.find("span").text("Adding");
+      $.ajax({
+          type: 'POST', 
+          url: '/cart/add.js',
+          dataType: 'json', 
+          data: $form.serialize(),
+          success: addToCartOk,
+          error: addToCartFail
+      });
+    });
+  });
+</script>
+<!-- AJAX Cart end  -->
