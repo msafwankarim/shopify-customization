@@ -1,0 +1,56 @@
+{% assign size_chart =  product.metafields.custom.size_chart %}
+{% if size_chart %}
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+/>
+<style>
+  .fancybox__image {
+    background-color: white !important;
+  }
+  .fancybox__content>.carousel__button.is-close {
+    color: black !important;
+    top: 0 !important;
+    box-shadow: none !important;    
+  }
+  .fancybox__content>.carousel__button.is-close svg {
+    width: 18px;
+  }
+</style>
+<section class="size-chart">
+<div data-fancybox="gallery" href="{{ size_chart | img_url: 'x2048' }}">  
+    <img src="{{ size_chart | img_url: 'x480' }}" />  
+</div>
+</section>
+<script type="module">
+  import { Fancybox } from "https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.esm.js";
+  Fancybox.bind('[data-fancybox="gallery"]', {
+  dragToClose: false,
+
+  Toolbar: false,
+  closeButton: "inside",
+
+  Image: {
+    zoom: false,
+  },
+  on: {
+    initCarousel: (fancybox) => {
+      const slide = fancybox.Carousel.slides[fancybox.Carousel.page];
+
+      fancybox.$container.style.setProperty(
+        "--bg-image",
+        `url("${slide.$thumb.src}")`
+      );
+    },
+    "Carousel.change": (fancybox, carousel, to, from) => {
+      const slide = carousel.slides[to];
+
+      fancybox.$container.style.setProperty(
+        "--bg-image",
+        `url("${slide.$thumb.src}")`
+      );
+    },
+  },
+});  
+</script>
+{% endif %}
