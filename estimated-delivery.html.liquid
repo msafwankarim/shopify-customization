@@ -4,77 +4,95 @@
 </section>
 
 <script>
-  // Months and Days are in italian
-  !(function () {
-    const getWeekDay = (day) => {
-      const weekday = [
-        "Domenica",
-        "Lunedi",
-        "Martedì",
-        "Mercoledì",
-        "Giovedì",
-        "Venerdì",
-        "Sabato",
-      ];
+!(function () {
+  const getWeekDay = (day) => {
+    const weekday = [
+      "Domenica",
+      "Lunedi",
+      "Martedì",
+      "Mercoledì",
+      "Giovedì",
+      "Venerdì",
+      "Sabato",
+    ];
+    return weekday[day % weekday.length];
+  };
+  const getMonth = (month, short) => {
+    const months = [
+      "Gennaio",
+      "Febbraio",
+      "Marzo",
+      "Aprile",
+      "Maggio",
+      "Giugno",
+      "Luglio",
+      "Agosto",
+      "Settembre",
+      "Ottobre",
+      "Novembre",
+      "Dicembre",
+    ];
+    const str = months[month % months.length];
+    return short ? str.substring(0, 3) : str;
+  };
 
-      return weekday[day % weekday.length];
-    };
+  const isHoliday = (date) => {
+    const day = new Date(date).getDay();
+    return day === 0 || day === 6;
+  };
 
-    const getMonth = (month, short) => {
-      const months = [
-        "Gennaio",
-        "Febbraio",
-        "Marzo",
-        "Aprile",
-        "Maggio",
-        "Giugno",
-        "Luglio",
-        "Agosto",
-        "Settembre",
-        "Ottobre",
-        "Novembre",
-        "Dicembre",
-      ];
-      const str = months[month % months.length];
-      return short ? str.substring(0, 3) : str;
-    };
+  const getValidDeliveryDay = (date) => {
+    let validDate = new Date(date);
 
-    const getEstimatedDelivery = () => {
-      const d = new Date();
-      const deliveryDate = new Date(d);
-      deliveryDate.setDate(deliveryDate.getDate() + 2);
+    while (isHoliday(validDate)) {
+      validDate.setDate(validDate.getDate() + 1);
+    }
 
-      let deliveryDay;
+    return validDate;
+  };
 
-      switch (deliveryDate.getDay()) {
-        case "Friday":
-          deliveryDay = deliveryDate.setDate(deliveryDate.getDate() + 2);
-          break;
-        case "Saturday":
-          deliveryDay = deliveryDate.setDate(deliveryDate.getDate() + 1);
-          break;
-        default:
-          deliveryDay = deliveryDate.getDay();
-          break;
-      }
+  const getEstimatedDelivery = (date) => {
+    let temp = new Date(date);
 
-      const day1 = deliveryDate,
-        day2 = new Date(deliveryDate);
+    temp.setDate(temp.getDate() + 1);
 
-      day2.setDate(deliveryDate.getDate() + 1);
+    let day1 = getValidDeliveryDay(temp);
 
-      return { day1, day2 };
-    };
+    temp.setDate(temp.getDate() + 1);
 
-    const { day1, day2 } = getEstimatedDelivery();
-    const container = document.querySelector(
-      "#estimated-delivery #estimatedDays"
-    );
-    let html = `${getWeekDay(day1.getDay())} - `;
-    html += `${getWeekDay(day2.getDay())} `;
-    html += `(${day1.getDate()} ${getMonth(day1.getMonth(), true)} - `;
-    html += `${day2.getDate()} ${getMonth(day1.getMonth(), true)})`;
+    let day2 = getValidDeliveryDay(temp);
 
-    container.innerHTML = html;
-  })();
+    switch (date.getDay()) {
+      case 0:
+        day1.setDate(day1.getDate() + 1);
+        day2.setDate(day2.getDate() + 1);
+        break;
+      case 5:
+        day2.setDate(day2.getDate() + 1);
+        break;
+      case 6:
+        day1.setDate(day1.getDate() + 1);
+        day2.setDate(day2.getDate() + 2);
+        break;
+    }
+
+    return { day1, day2 };
+  };
+
+  // const saturday = new Date();
+  // saturday.setDate(saturday.getDate() + 6);
+
+  // console.log("Day: ", getWeekDay(saturday.getDay()));
+
+  const { day1, day2 } = getEstimatedDelivery(new Date());
+  let html = `${getWeekDay(day1.getDay())} - `;
+  html += `${getWeekDay(day2.getDay())} `;
+  html += `(${day1.getDate()} ${getMonth(day1.getMonth(), true)} - `;
+  html += `${day2.getDate()} ${getMonth(day1.getMonth(), true)})`;
+
+  const container = document.querySelector(
+    "#estimated-delivery #estimatedDays"
+  );
+  container.innerHTML = html;
+})();
 </script>
