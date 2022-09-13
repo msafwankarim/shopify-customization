@@ -1,1 +1,95 @@
+<section class="custom-tabs">
+  <header class="tab-header">
+    <h4 class="header-item active" data-target-panel="tab-1">Key Benefits</h4>
+    <h4 class="header-item" data-target-panel="tab-2">What's Inside</h4>
+    <h4 class="header-item" data-target-panel="tab-3">Ingredient Panel</h4>
+  </header>
+  <main class="tab-content">
+    <div class="content-panel visible" data-panel="tab-1">
+      {{ section.settings.key_benifits }}
+    </div>
+    <div class="content-panel" data-panel="tab-2">
+      {{ section.settings.whats_inside }}
+    </div>
+    <div class="content-panel" data-panel="tab-3">
+      {{ section.settings.ingredient_panel }}
+    </div>
+  </main>
+</section>
+<script>
+  const tabHeader = document.querySelector(".tab-header");
+  const tabContent = document.querySelector(".tab-content");
 
+  tabHeader.addEventListener("click", e => {
+    tabHeader.querySelectorAll(".header-item.active").forEach(elem => {
+      elem.classList.remove("active");
+    })
+    tabContent.querySelectorAll(".content-panel.visible").forEach(elem => {
+      elem.classList.remove("visible");
+    })
+    console.log(e.target);
+    const targetPanel = e.target.dataset.targetPanel;
+    const panel = document.querySelector(`[data-panel=${targetPanel}]`);
+    panel && panel.classList.add("visible");
+    e.target.classList.add("active");
+  })
+</script>
+<style>
+  .tab-header {
+    display: flex;
+    justify-content: space-evenly;
+    max-width: 768px;
+    margin: auto;
+  }
+
+  .header-item {
+    padding: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    width: 100%;
+    text-align: center;
+    text-transform: uppercase;
+    vertical-align: middle;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .header-item:hover {
+    background-color: #074c97;
+    color: white;
+  }
+
+  .tab-content {
+    min-height: 20rem;
+    background-color: #074c97;
+    display: flex;
+    align-items: center;
+    padding: 1em;
+    justify-content: center;
+  }
+
+  .content-panel {
+    display: none;
+  }
+
+  .content-panel.visible {
+    display: block;
+    color: white;
+  }
+
+  .header-item.active {
+    background-color: #074c97;
+    color: white;
+  }
+
+  @media (max-width: 600px) {
+    .tab-header {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  #looxReviews i.fa.star {
+    color: gold !important;
+  }
+</style>
