@@ -1,0 +1,65 @@
+<section class="custom-dynamic-text cdt-wrapper">
+  {% if section.settings.enable_dynamic_number %}
+  {{ section.settings.dynamic_text | replace: "DYNAMIC_NUMBER", "<span class='dynamic-number'></span>"}}
+    {% else %}
+    {{ section.settings.dynamic_text }}
+    {% endif %}
+</section>
+
+{% if section.settings.enable_dynamic_number %}
+<script>
+  $(document).on("DOMContentLoaded shopify:section:load",(e,detail) => {
+    const LOWER_LIMIT = {{ section.settings.dynamic_number_min | json }};
+    const UPPER_LIMIT = {{ section.settings.dynamic_number_max | json }};
+
+    const number = Math.floor(Math.random() * (UPPER_LIMIT - LOWER_LIMIT) + LOWER_LIMIT);
+    $(".dynamic-number").html(number);
+  });
+</script>
+{% endif %}
+
+<style>
+  .cdt-wrapper {
+    background-color: #ecf3ff;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    margin-top: 16px;
+    text-align: center;
+    padding: 12px;
+  }
+</style>
+
+<!-- Put the following schema in section schema -->
+<script type="text/json">
+{
+    "name": "Custom Dynamic Text",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Dynamic Text"
+      },
+      {
+        "type": "text",
+        "id": "dynamic_text",
+        "label": "Dynamic Text",
+        "info": "Use the word DYNAMIC_NUMBER to insert dynamic number in text"
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_dynamic_number",
+        "label": "Enable Dynamic Number",
+        "default": true
+      },
+      {
+        "type": "number",
+        "id": "dynamic_number_min",
+        "label": "Dynamic Number Lower Limit"        
+      },
+      {
+        "type": "number",
+        "id": "dynamic_number_max",
+        "label": "Dynamic Number Upper Limit"       
+      }
+    ]
+}
+</script>
